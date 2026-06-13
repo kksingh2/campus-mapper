@@ -1,39 +1,37 @@
-# campus mapper
+# Campus Mapper
 
-my a-level computer science final project (sep 2023 to jan 2024).
+My A-level computer science project (September 2023 to January 2024). It is a Java program that finds the quickest walking route between two Cambridge colleges. Each user has an accessibility level, and the program only uses paths they can actually take.
 
-a java program that finds the shortest walking route between two cambridge colleges. each user has an accessibility level (how mobile they are) and the program only uses paths they can actually walk.
+## How it works
 
-## how it works
+The campus is stored as a graph: colleges are points, paths between them are connections, and each connection has a walking time and a required accessibility level. The data lives in a SQLite database.
 
-i store the colleges and the paths between them as a graph in a sqlite database. each path has a required accessibility level (1 is easy access, 5 means stairs).
+To find the quickest route it uses **Dijkstra's algorithm**. The idea is simple:
 
-to find the shortest route i use a search called **bfs** (breadth first search):
+1. Give every college a label showing the shortest time found so far to reach it from the start. The start is 0, everything else begins at infinity.
+2. Pick the unvisited college with the smallest label and treat its label as final.
+3. Look at its neighbours. If going through the current college is quicker than a neighbour's current label, lower that neighbour's label.
+4. Repeat until the destination's label is final, then trace the labels backwards to read off the route.
 
-1. start at the source college and look at all the colleges directly connected to it
-2. then look at all the colleges connected to those (without re-visiting any)
-3. carry on until i reach the destination
-4. then trace back through the path to print the route
+## The from-scratch parts
 
-bfs finds the route with the fewest steps, which is what counts as "shortest" in this project.
+The exam required me to write my own data structures rather than use Java's built-in ones. So the program contains:
 
-## the from-scratch parts
+- `CustomHashMap` — looks up a college from its ID instantly.
+- `CustomLinkedListQueue` — holds the colleges still waiting to be processed.
 
-the exam mark scheme said i had to write my own data structures. so instead of using java's built in `HashMap` and `LinkedList`, i wrote my own:
+## Files
 
-- `CustomHashMap` - looks up a college from its id in one step
-- `CustomLinkedListQueue` - the queue bfs uses to remember which college to visit next
+- `src/` holds the Java files.
+- `data/` holds the CSV files for colleges, paths, users and accessibility levels, plus a SQLite database with the same data.
 
-## files
-
-- `src/` - the java files
-- `data/` - csvs for colleges, paths, users, accessibility levels, plus a sqlite database with the same data
-
-## run
+## Run it
 
 ```
 javac -cp "lib/sqlite-jdbc.jar" src/*.java -d out
 java -cp "out;lib/sqlite-jdbc.jar" Main
 ```
 
-drop `sqlite-jdbc.jar` (any 3.x version) into a `lib/` folder first. then use the menu to add colleges, set up users, or run a route lookup.
+Put `sqlite-jdbc.jar` (any 3.x version) in a `lib/` folder first. Then use the menu to add colleges, set up users, or run a route lookup.
+
+You can also try a live version of the route finder at [birkaran.com/projects/campus-mapper](https://birkaran.com/projects/campus-mapper).
